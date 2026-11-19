@@ -1,0 +1,1203 @@
+import React, { useState } from 'react';
+import { 
+  Vote, 
+  CheckCircle2, 
+  BarChart3, 
+  Lock, 
+  Unlock, 
+  UserCheck, 
+  ShieldCheck, 
+  RefreshCw, 
+  AlertCircle,
+  TrendingUp,
+  Users,
+  Search,
+  LogOut,
+  Sparkles,
+  BookOpen,
+  Calendar,
+  Award,
+  FileText,
+  Building,
+  CheckSquare,
+  Square,
+  Printer,
+  ChevronRight,
+  Info,
+  Filter,
+  UserPlus,
+  KeyRound,
+  RotateCcw,
+  Image as ImageIcon,
+  Upload
+} from 'lucide-react';
+
+// Data Candidate Formatur PR IPM Al-Kautsar (Tepat 26 Calon Formatur Sesuai Data Asli & Pembagian Kelas)
+const INITIAL_CANDIDATES = [
+  // Nomor 1 s/d 9: KELAS 8
+  { id: 'fmt-1', number: '01', name: 'Ahmad Setiawan', class: 'Kelas 8', motto: 'Mewujudkan Kader Al-Kautsar Berdikari dan Digital Progresif', photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400', vision: 'Menjadikan PR IPM Al-Kautsar sebagai laboratorium kepemimpinan islami dan berdaya saing Iptek.', mission: ['Digitalisasi administrasi dan media dakwah ranting.', 'Menguatkan pengaderan perkaderan berjenjang.'], programs: ['IPM Al-Kautsar App', 'Kajian Pelajar Ranting'], votes: 68 },
+  { id: 'fmt-2', number: '02', name: 'M Abdilah', class: 'Kelas 8', motto: 'IPM Inklusif, Kolaboratif, dan Peduli Santri', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400', vision: 'Membangun kepemimpinan inklusif yang menumbuhkan kreativitas serta empati sosial santri.', mission: ['Pemberdayaan ipmawan dalam kepemimpinan.', 'Aksi sosial ramah lingkungan.'], programs: ['Al-Kautsar Eco-Green', 'Forum Pelajar'], votes: 75 },
+  { id: 'fmt-3', number: '03', name: 'Khairul Rahman Nugraha', class: 'Kelas 8', motto: 'Religius, Berprestasi, dan Berkelanjutan', photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400', vision: 'Terwujudnya santri IPM Al-Kautsar yang unggul dalam akhlakul karimah.', mission: ['Menggiatkan gerakan ke-Muhammadiyahan.', 'Pendampingan olimpiade.'], programs: ['Subuh Berjamaah & Diskusi', 'IPM Store'], votes: 61 },
+  { id: 'fmt-4', number: '04', name: 'Adam Ali Yirond', class: 'Kelas 8', motto: 'Disiplin Hati, Solid Berkarya', photo: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=400', vision: 'Meningkatkan soliditas kader dan jaringan komunikasi IPM Al-Kautsar.', mission: ['Penataan kedisiplinan organisasi.', 'Sinergi IPM dengan pengurus asrama.'], programs: ['Kader Siap Grak!', 'Sinergi Asrama'], votes: 54 },
+  { id: 'fmt-5', number: '05', name: 'Ida Yuni Asih', class: 'Kelas 8', motto: 'Kreatif, Cerdas, dan Berkeadaban', photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400', vision: 'Menanamkan budaya kepemimpinan berlandaskan disiplin & integritas.', mission: ['Menggali minat seni & desain santri.', 'Wadah aspirasi santri.'], programs: ['Design & Media Training', 'Buletin Santri'], votes: 49 },
+  { id: 'fmt-6', number: '06', name: 'Ajeng Citra Lestari', class: 'Kelas 8', motto: 'Literasi Kuat, Berwawasan Global', photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400', vision: 'Menciptakan ruang literasi sains dan keislaman yang luas bagi kader IPM.', mission: ['Peningkatan budaya membaca.', 'Pengembangan klub bahasa.'], programs: ['Al-Kautsar Book Fair', 'Language Club'], votes: 58 },
+  { id: 'fmt-7', number: '07', name: 'Mutiara Afiqah', class: 'Kelas 8', motto: 'Taqwa, Karya, dan Pengabdian', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400', vision: 'Mengabdi untuk kemajuan madrasah dan kebanggaan organisasi IPM.', mission: ['Penguatan pengabdian masyarakat.'], programs: ['Bakti Santri Desa'], votes: 42 },
+  { id: 'fmt-8', number: '08', name: 'Ummu Hanifatun Aqilah', class: 'Kelas 8', motto: 'Bersatu dalam Keberagaman, Unggul Prestasi', photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400', vision: 'Merajut kebersamaan antar angkatan demi IPM Al-Kautsar solid.', mission: ['Mengadakan event olahraga & seni.'], programs: ['Pekan Olahraga Santri'], votes: 52 },
+  { id: 'fmt-9', number: '09', name: 'Aulia Putri Pratiwi', class: 'Kelas 8', motto: 'Satu Kata: Aksi Nyata!', photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400', vision: 'Menjadikan IPM Al-Kautsar pelopor aksi kebaikan lingkungan.', mission: ['Gerakan kebersihan lingkungan santri.'], programs: ['Clean & Green Al-Kautsar'], votes: 45 },
+
+  // Nomor 10 s/d 26: KELAS 7
+  { id: 'fmt-10', number: '10', name: 'Abdihan Ubay Yanuar', class: 'Kelas 7', motto: 'Cerdas Anggun Berakhlak', photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400', vision: 'Membina kader berkarakter ke-Islaman dan mandiri.', mission: ['Mengadakan kajian berkala pelajar.'], programs: ['Kajian Pelajar'], votes: 38 },
+  { id: 'fmt-11', number: '11', name: 'Arif Cahyo', class: 'Kelas 7', motto: 'Semangat Muda Pelopor Perubahan', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400', vision: 'Penguatan pengaderan dasar bagi kader tingkat pertama.', mission: ['Pelatihan dasar jurnalistik & kepemimpinan.'], programs: ['Pelatihan Jurnalistik'], votes: 41 },
+  { id: 'fmt-12', number: '12', name: 'Afritik Rozan', class: 'Kelas 7', motto: 'Dakwah Santun Menyeleksi Zaman', photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400', vision: 'Dakwah kreatif berbasis media sosial dan multimedia.', mission: ['Optimalisasi konten dakwah digital.'], programs: ['Podcast Pelajar Al-Kautsar'], votes: 50 },
+  { id: 'fmt-13', number: '13', name: 'Khalid Afatar', class: 'Kelas 7', motto: 'Aktif, Adaptif, dan Solutif', photo: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=400', vision: 'Menjadi wadah penyalur aspirasi & bakat kepemimpinan santri.', mission: ['Rutin mengadakan mimbar aspirasi santri.'], programs: ['Mimbar Pelajar'], votes: 36 },
+  { id: 'fmt-14', number: '14', name: 'Jaka Afandi', class: 'Kelas 7', motto: 'Tangguh Berkarakter', photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400', vision: 'Meningkatkan kepedulian lingkungan dan kebersihan asrama.', mission: ['Lomba kebersihan antar bilik asrama.'], programs: ['Asrama Asri'], votes: 39 },
+  { id: 'fmt-15', number: '15', name: 'Ibrahim Taufqurohman', class: 'Kelas 7', motto: 'Disiplin Waktu, Capai Prestasi', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400', vision: 'Menanamkan budaya manajemen waktu positif bagi kader.', mission: ['Pelatihan manajemen waktu santri.'], programs: ['Time Management Workshop'], votes: 47 },
+  { id: 'fmt-16', number: '16', name: 'Balqis Khumaira Iza Azahfa', class: 'Kelas 7', motto: 'Berilmu dan Berilmu Amaliah', photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400', vision: 'Menguatkan integrasi ilmu sains dan Al-Qur\'an.', mission: ['Kelompok sains Al-Qur\'an santri.'], programs: ['Tafsir Sains Pelajar'], votes: 53 },
+  { id: 'fmt-17', number: '17', name: 'Aisyah Luluil Latifah', class: 'Kelas 7', motto: 'Solidaritas Tanpa Batas', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400', vision: 'Menjalin ukhuwah islamiyah antar angkatan santri.', mission: ['Gathering dan rihlah keakraban santri.'], programs: ['Rihlah Kader'], votes: 33 },
+  { id: 'fmt-18', number: '18', name: 'Naura Ahzzahra El Bilqis', class: 'Kelas 7', motto: 'IPM Ramah Anak dan Santri', photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400', vision: 'Mewujudkan lingkungan belajar sekolah yang kondusif.', mission: ['Program mentoring sebaya santri.'], programs: ['Peer Mentoring'], votes: 44 },
+  { id: 'fmt-19', number: '19', name: 'Khayla Almira', class: 'Kelas 7', motto: 'Kader Tangguh Berdaya Saing', photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400', vision: 'Mengasah soft-skill kepemimpinan abad 21.', mission: ['Workshop public speaking.'], programs: ['Public Speaking Academy'], votes: 59 },
+  { id: 'fmt-20', number: '20', name: 'Salwa Ameera Ramadhani', class: 'Kelas 7', motto: 'Satu Hati Membangun Ranting', photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400', vision: 'Mengembangkan minat bakat seni kriya dan seni tari islami.', mission: ['Pentas seni islami tahunan.'], programs: ['Pentas Seni Pelajar'], votes: 31 },
+  { id: 'fmt-21', number: '21', name: 'Asyanti Cantika', class: 'Kelas 7', motto: 'Karakter Utama, Prestasi Pertama', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400', vision: 'Mendorong pencapaian akademik dan non-akademik.', mission: ['Reward apresiasi santri berprestasi.'], programs: ['Santri Award'], votes: 40 },
+  { id: 'fmt-22', number: '22', name: 'Tri Wahyuni', class: 'Kelas 7', motto: 'Empati Sosial, Aksi Nyata', photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400', vision: 'Memperkuat gerakan pengabdian sosial pelajar.', mission: ['Pengumpulan dana sosial bencana & duafa.'], programs: ['IPM Peduli Bencana'], votes: 46 },
+  { id: 'fmt-23', number: '23', name: 'Rizkiya Solekhah', class: 'Kelas 7', motto: 'Sportif dan Berakhlak', photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400', vision: 'Mengembangkan potensi bidang olahraga santri.', mission: ['Turnamen futsal & panahan antar asrama.'], programs: ['Al-Kautsar Cup'], votes: 37 },
+  { id: 'fmt-24', number: '24', name: 'Anatasya', class: 'Kelas 7', motto: 'Solusi Digital Pelajar', photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400', vision: 'Menciptakan ekosistem perpustakaan digital IPM.', mission: ['Pengembangan E-Library IPM.'], programs: ['E-Library Pelajar'], votes: 48 },
+  { id: 'fmt-25', number: '25', name: 'Zaenab Adilah', class: 'Kelas 7', motto: 'Menuju Santri Hafiz Berkemajuan', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400', vision: 'Membumikan gerakan Tahfiz Al-Qur\'an santri.', mission: ['Halaqah Tahfiz Pelajar.'], programs: ['Klub Tahfiz IPM'], votes: 56 },
+  { id: 'fmt-26', number: '26', name: 'Adinda Nufusus Sholihah', class: 'Kelas 7', motto: 'Ipmawati Tangguh Berkemajuan', photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400', vision: 'Pelatihan kewirausahaan mandiri ipmawati.', mission: ['Market Day Santri.'], programs: ['Ipmawati Preneur'], votes: 34 }
+];
+
+// Sample Voter List for Demo
+const VALID_VOTERS = {
+  'AK-1001': { name: 'Ahmad Fauzan', class: 'Kelas 7', asrama: 'Abu Bakar', voted: false },
+  'AK-1002': { name: 'Siti Nurhaliza', class: 'Kelas 8', asrama: 'Khadijah', voted: false },
+  'AK-1003': { name: 'Dewi Anggraini', class: 'Kelas 8', asrama: 'Aisyah', voted: false },
+  'AK-1004': { name: 'Budi Kurniawan', class: 'Kelas 7', asrama: 'Umar', voted: false },
+  'AK-2026': { name: 'Kader Santri Demo', class: 'Kelas 8', asrama: 'Ali', voted: false }
+};
+
+const REQUIRED_FORMATUR_COUNT = 12; // Wajib memilih 12 Formatur
+
+export default function App() {
+  const [candidates, setCandidates] = useState(INITIAL_CANDIDATES);
+  const [voters, setVoters] = useState(VALID_VOTERS);
+  const [activeTab, setActiveTab] = useState('home'); // 'home' | 'candidates' | 'vote' | 'results' | 'admin'
+  const [isVotingLocked, setIsVotingLocked] = useState(false);
+  
+  // Custom Logo State
+  const [customLogo, setCustomLogo] = useState(null);
+
+  // Admin Auth State
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [adminPin, setAdminPin] = useState('');
+  const [adminPinError, setAdminPinError] = useState('');
+
+  // Logo Upload Handler for Admin
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomLogo(reader.result);
+        triggerToast('Logo PR IPM Al-Kautsar berhasil diperbarui!');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  // Admin Add Voter State
+  const [newVoterNis, setNewVoterNis] = useState('');
+  const [newVoterName, setNewVoterName] = useState('');
+  const [newVoterClass, setNewVoterClass] = useState('Kelas 7');
+  const [newVoterAsrama, setNewVoterAsrama] = useState('Abu Bakar');
+
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [classFilter, setClassFilter] = useState('ALL');
+
+  // Auth & Voting Selection State
+  const [nisInput, setNisInput] = useState('');
+  const [currentVoter, setCurrentVoter] = useState(null);
+  const [selectedCandidates, setSelectedCandidates] = useState([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [voteSuccess, setVoteSuccess] = useState(false);
+  const [authError, setAuthError] = useState('');
+
+  // Total Target Voters Count
+  const totalTargetVoters = 150;
+  const totalVotesCast = Object.values(voters).filter(v => v.voted).length;
+  const turnoutPercent = ((totalVotesCast / totalTargetVoters) * 100).toFixed(1);
+
+  // Filtered Candidates Logic
+  const filteredCandidates = candidates.filter(c => {
+    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          c.number.includes(searchQuery) || 
+                          c.class.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesClass = classFilter === 'ALL' || c.class.includes(classFilter);
+    return matchesSearch && matchesClass;
+  });
+
+  // Trigger Toast Notification
+  const triggerToast = (msg) => {
+    setToastMessage(msg);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  // Admin PIN Auth Handler
+  const handleAdminLogin = (e) => {
+    e.preventDefault();
+    setAdminPinError('');
+    if (adminPin === '1912') { // Default PIN: 1912 (Tahun Berdiri Muhammadiyah)
+      setIsAdminAuthenticated(true);
+      setAdminPin('');
+      triggerToast('Login Panlih Berhasil!');
+    } else {
+      setAdminPinError('PIN Admin Salah! (PIN Demo: 1912)');
+    }
+  };
+
+  // Add New Voter to DPT by Admin
+  const handleAddVoter = (e) => {
+    e.preventDefault();
+    const formattedNis = newVoterNis.trim().toUpperCase();
+    if (!formattedNis || !newVoterName.trim()) {
+      triggerToast('Mohon lengkapi NIS dan Nama Pemilih!');
+      return;
+    }
+
+    if (voters[formattedNis]) {
+      triggerToast(`Pemilih dengan NIS ${formattedNis} sudah ada dalam DPT!`);
+      return;
+    }
+
+    setVoters(prev => ({
+      ...prev,
+      [formattedNis]: {
+        name: newVoterName.trim(),
+        class: newVoterClass,
+        asrama: newVoterAsrama,
+        voted: false
+      }
+    }));
+
+    setNewVoterNis('');
+    setNewVoterName('');
+    triggerToast(`Pemilih ${newVoterName} (${formattedNis}) berhasil ditambahkan ke DPT!`);
+  };
+
+  // Reset Individual Voter Status
+  const handleResetIndividualVoter = (nis) => {
+    setVoters(prev => ({
+      ...prev,
+      [nis]: {
+        ...prev[nis],
+        voted: false
+      }
+    }));
+    triggerToast(`Status hak suara pemilih ${nis} berhasil dibuka kembali.`);
+  };
+
+  // Authentication Handler
+  const handleLogin = (e) => {
+    e.preventDefault();
+    setAuthError('');
+
+    if (isVotingLocked) {
+      setAuthError('Mohon maaf, pemungutan suara Musyran saat ini sedang dikunci oleh Panlih.');
+      return;
+    }
+
+    const trimmed = nisInput.trim().toUpperCase();
+    if (!trimmed) {
+      setAuthError('Silakan masukkan NIS / ID Santri Al-Kautsar Anda!');
+      return;
+    }
+
+    const voter = voters[trimmed];
+    if (voter) {
+      if (voter.voted) {
+        setAuthError(`ID ${trimmed} (${voter.name}) sudah memberikan hak suara pada Musyran ini!`);
+      } else {
+        setCurrentVoter({ nis: trimmed, ...voter });
+        setSelectedCandidates([]);
+      }
+    } else {
+      // Fallback demo account
+      setCurrentVoter({
+        nis: trimmed,
+        name: `Santri / Kader Al-Kautsar (${trimmed})`,
+        class: 'Siswa / Santri Aktif',
+        asrama: 'Al-Kautsar',
+        voted: false
+      });
+      setSelectedCandidates([]);
+    }
+  };
+
+  // Toggle Selection of Formatur Candidate
+  const toggleCandidateSelection = (candidate) => {
+    const isSelected = selectedCandidates.some(c => c.id === candidate.id);
+    if (isSelected) {
+      setSelectedCandidates(prev => prev.filter(c => c.id !== candidate.id));
+    } else {
+      if (selectedCandidates.length >= REQUIRED_FORMATUR_COUNT) {
+        triggerToast(`Maksimal memilih ${REQUIRED_FORMATUR_COUNT} calon formatur!`);
+        return;
+      }
+      setSelectedCandidates(prev => [...prev, candidate]);
+    }
+  };
+
+  // Submit Vote Action
+  const handleCastVote = () => {
+    if (selectedCandidates.length !== REQUIRED_FORMATUR_COUNT) {
+      triggerToast(`Anda wajib memilih persis ${REQUIRED_FORMATUR_COUNT} calon formatur!`);
+      return;
+    }
+
+    // Increment votes for selected candidates
+    setCandidates(prev => 
+      prev.map(c => {
+        if (selectedCandidates.some(sel => sel.id === c.id)) {
+          return { ...c, votes: c.votes + 1 };
+        }
+        return c;
+      })
+    );
+
+    // Update Voter Status
+    setVoters(prev => ({
+      ...prev,
+      [currentVoter.nis]: {
+        ...(prev[currentVoter.nis] || currentVoter),
+        voted: true
+      }
+    }));
+
+    setShowConfirmModal(false);
+    setVoteSuccess(true);
+    triggerToast('Suara Anda berhasil tersimpan dalam sistem E-Voting Musyran!');
+  };
+
+  // Logout / Reset Current Session
+  const handleLogout = () => {
+    setCurrentVoter(null);
+    setSelectedCandidates([]);
+    setVoteSuccess(false);
+    setNisInput('');
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
+      
+      {/* TOAST NOTIFICATION */}
+      {showToast && (
+        <div className="fixed top-20 right-4 z-50 bg-emerald-900 text-amber-300 px-4 py-3 rounded-xl shadow-2xl border border-amber-400 flex items-center gap-2 text-sm font-semibold animate-bounce">
+          <Sparkles className="w-5 h-5 text-amber-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* BRANDING HEADER */}
+      <header className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-amber-500 text-white shadow-xl sticky top-0 z-40 border-b-2 border-amber-400">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+          
+          <div className="flex items-center gap-3">
+            {/* LOGO DISPLAY AREA */}
+            {customLogo ? (
+              <img 
+                src={customLogo} 
+                alt="Logo PR IPM Al-Kautsar" 
+                className="w-12 h-12 object-contain bg-white rounded-2xl p-1 shadow-lg border-2 border-amber-400"
+              />
+            ) : (
+              <div className="w-12 h-12 bg-amber-400 border-2 border-white rounded-2xl flex items-center justify-center font-extrabold text-emerald-950 shadow-lg transform rotate-2">
+                <BookOpen className="w-7 h-7 text-emerald-900" />
+              </div>
+            )}
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="font-extrabold text-lg sm:text-xl tracking-tight text-amber-300">
+                  MUSYRAN E-VOTING
+                </h1>
+                <span className="bg-emerald-950 text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider border border-amber-400/30">
+                  PR IPM AL-KAUTSAR
+                </span>
+              </div>
+              <p className="text-xs text-emerald-100 font-medium">
+                Musyawarah Ranting Ikatan Pelajar Muhammadiyah Al-Kautsar
+              </p>
+            </div>
+          </div>
+
+          {/* Navigation Tabs */}
+          <nav className="flex items-center bg-emerald-950/50 p-1.5 rounded-2xl backdrop-blur-md border border-white/10 text-xs sm:text-sm overflow-x-auto max-w-full">
+            <button
+              onClick={() => setActiveTab('home')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all ${
+                activeTab === 'home' 
+                  ? 'bg-amber-400 text-emerald-950 shadow-md font-bold' 
+                  : 'text-emerald-100 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <Building className="w-4 h-4" /> Beranda
+            </button>
+            <button
+              onClick={() => setActiveTab('candidates')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all ${
+                activeTab === 'candidates' 
+                  ? 'bg-amber-400 text-emerald-950 shadow-md font-bold' 
+                  : 'text-emerald-100 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <Users className="w-4 h-4" /> Calon Formatur (26)
+            </button>
+            <button
+              onClick={() => setActiveTab('vote')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all ${
+                activeTab === 'vote' 
+                  ? 'bg-amber-400 text-emerald-950 shadow-md font-bold' 
+                  : 'text-emerald-100 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <Vote className="w-4 h-4" /> Bilik Suara
+            </button>
+            <button
+              onClick={() => setActiveTab('results')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all ${
+                activeTab === 'results' 
+                  ? 'bg-amber-400 text-emerald-950 shadow-md font-bold' 
+                  : 'text-emerald-100 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4" /> Quick Count
+            </button>
+            <button
+              onClick={() => setActiveTab('admin')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium transition-all ${
+                activeTab === 'admin' 
+                  ? 'bg-amber-400 text-emerald-950 shadow-md font-bold' 
+                  : 'text-emerald-100 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4" /> Panlih
+            </button>
+          </nav>
+
+        </div>
+      </header>
+
+      {/* SYSTEM STATUS BANNER */}
+      {isVotingLocked && (
+        <div className="bg-amber-500 text-amber-950 px-4 py-2 text-center font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-inner">
+          <Lock className="w-4 h-4" /> Pemungutan suara Musyran saat ini DIKUNCI oleh Panitia Pemilihan (Panlih).
+        </div>
+      )}
+
+      {/* MAIN CONTAINER */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+        {/* 1. TAB BERANDA / INFORMATION */}
+        {activeTab === 'home' && (
+          <div className="space-y-8">
+            <div className="relative bg-gradient-to-br from-emerald-900 via-emerald-800 to-amber-600 rounded-3xl p-6 sm:p-10 text-white overflow-hidden shadow-xl border border-amber-400/30">
+              <div className="absolute right-0 top-0 opacity-10 translate-x-12 -translate-y-12 pointer-events-none">
+                <BookOpen className="w-96 h-96 text-white" />
+              </div>
+
+              <div className="relative z-10 max-w-3xl space-y-4">
+                <span className="inline-flex items-center gap-1.5 bg-amber-400 text-emerald-950 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
+                  <Sparkles className="w-4 h-4" /> Musyawarah Ranting PR IPM Al-Kautsar
+                </span>
+                <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                  "Menguatkan Karakter Kader Progresif, IPM Al-Kautsar Berkeadaban"
+                </h2>
+                <p className="text-emerald-100 text-sm sm:text-base leading-relaxed">
+                  Selamat datang di Portal E-Voting Musyawarah Ranting Pimpinan Ranting Ikatan Pelajar Muhammadiyah Al-Kautsar. Salurkan hak suara Anda untuk memilih <strong>12 Formatur</strong> dari <strong>26 Calon Formatur</strong> secara adil, transparan, dan akuntabel.
+                </p>
+
+                <div className="pt-2 flex flex-wrap gap-3">
+                  <button
+                    onClick={() => setActiveTab('vote')}
+                    className="bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold px-6 py-3 rounded-xl shadow-lg transition-all flex items-center gap-2 text-sm"
+                  >
+                    <Vote className="w-5 h-5" /> Masuk Bilik Suara
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('candidates')}
+                    className="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-xl backdrop-blur-sm transition-all border border-white/20 text-sm flex items-center gap-2"
+                  >
+                    <Users className="w-5 h-5 text-amber-300" /> Lihat Profil 26 Formatur
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+                <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
+                  <div className="w-10 h-10 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center font-bold">
+                    <Award className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800 text-base">Sambutan Ketua Umum PR IPM Al-Kautsar</h3>
+                    <p className="text-xs text-slate-500">Periode Demisioner</p>
+                  </div>
+                </div>
+
+                <div className="text-xs sm:text-sm text-slate-600 space-y-3 leading-relaxed italic">
+                  <p>
+                    "Bismillahirrohmanirrohim. Assalamu'alaikum Wr. Wb. Musyawarah Ranting (Musyran) bukan sekadar rutinitas pergantian struktur kepengurusan, melainkan momentum penting untuk mengevaluasi, merumuskan arah dakwah pelajar Muhammadiyah, serta memilih kader-kader formatur terbaik yang amanah."
+                  </p>
+                  <p>
+                    "Kami mengajak seluruh santri dan siswa Al-Kautsar untuk berpartisipasi aktif menggunakan hak pilihnya secara rasional, independen, dan berlandaskan akhlakul karimah. Mari kita wujudkan Musyran PR IPM Al-Kautsar yang sejuk, damai, dan berkemajuan!"
+                  </p>
+                </div>
+
+                <div className="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
+                  <span className="font-semibold text-emerald-800">M. Hilmi Fadhil — Ketua Umum Demisioner</span>
+                  <span>PR IPM Al-Kautsar</span>
+                </div>
+              </div>
+
+              <div className="bg-amber-50 rounded-2xl p-6 border border-amber-200 space-y-4 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-bold text-amber-950 text-base flex items-center gap-2 mb-3">
+                    <Calendar className="w-5 h-5 text-amber-600" /> Ketentuan Musyran
+                  </h3>
+
+                  <ul className="space-y-3 text-xs text-amber-900">
+                    <li className="flex items-start gap-2">
+                      <ChevronRight className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <strong>Jumlah Kandidat:</strong>
+                        <p className="text-amber-800">Terdapat 26 Calon Formatur (No. 01 - 26)</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <ChevronRight className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <strong>Ketentuan Suara:</strong>
+                        <p className="text-amber-800">Wajib memilih TEPAT 12 Calon Formatur</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <ChevronRight className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <strong>Penetapan Hasil:</strong>
+                        <p className="text-amber-800">12 Peraih Suara Terbanyak Menjadi Formatur Terpilih</p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-3 rounded-xl border border-amber-200 text-[11px] text-amber-900 flex items-center gap-2">
+                  <Info className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>Setiap pemilih berhak memilih <strong>{REQUIRED_FORMATUR_COUNT} Formatur</strong>.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 2. TAB DAFTAR CALON FORMATUR (26 CANDIDATES) */}
+        {activeTab === 'candidates' && (
+          <div className="space-y-6">
+            <div className="text-center max-w-2xl mx-auto">
+              <h2 className="text-2xl font-extrabold text-slate-800">Daftar 26 Calon Formatur PR IPM Al-Kautsar</h2>
+              <p className="text-sm text-slate-500 mt-1">
+                Berikut adalah 26 Calon Formatur Musyawarah Ranting yang siap dipilih menjadi 12 Anggota Formatur Terpilih.
+              </p>
+            </div>
+
+            {/* SEARCH AND FILTER BAR */}
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-3 items-center justify-between">
+              <div className="relative w-full sm:w-72">
+                <input
+                  type="text"
+                  placeholder="Cari Nama / No / Asrama..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Filter className="w-4 h-4 text-emerald-800 shrink-0" />
+                <select
+                  value={classFilter}
+                  onChange={(e) => setClassFilter(e.target.value)}
+                  className="w-full sm:w-auto px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none text-slate-700 font-medium"
+                >
+                  <option value="ALL">Semua Kelas (7 & 8)</option>
+                  <option value="Kelas 8">Kelas 8 (No. 01 - 09)</option>
+                  <option value="Kelas 7">Kelas 7 (No. 10 - 26)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {filteredCandidates.map((candidate) => (
+                <div key={candidate.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-all">
+                  <div className="bg-emerald-800 text-white p-5 text-center relative">
+                    <span className="absolute top-3 left-3 bg-amber-400 text-emerald-950 font-black px-3 py-0.5 rounded-full text-xs shadow">
+                      NO. {candidate.number}
+                    </span>
+                    <img
+                      src={candidate.photo}
+                      alt={candidate.name}
+                      className="w-20 h-20 rounded-full mx-auto object-cover border-4 border-amber-400 shadow my-2"
+                    />
+                    <h3 className="font-bold text-base leading-tight">{candidate.name}</h3>
+                    <p className="text-xs text-emerald-200 mt-0.5 font-medium">{candidate.class}</p>
+                  </div>
+
+                  <div className="p-4 space-y-3 flex-1 text-xs">
+                    <div>
+                      <span className="font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Motto:</span>
+                      <p className="italic text-slate-700 font-medium bg-slate-50 p-2 rounded border border-slate-100">
+                        "{candidate.motto}"
+                      </p>
+                    </div>
+
+                    <div>
+                      <span className="font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Visi Utama:</span>
+                      <p className="text-slate-600 leading-relaxed">{candidate.vision}</p>
+                    </div>
+
+                    <div>
+                      <span className="font-bold text-slate-400 uppercase tracking-wider block mb-1">Program Unggulan:</span>
+                      <div className="flex flex-wrap gap-1">
+                        {candidate.programs.map((prog, i) => (
+                          <span key={i} className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-medium">
+                            {prog}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 3. TAB BILIK SUARA (E-VOTING FORMATUR - MEMILIH TEPAT 12) */}
+        {activeTab === 'vote' && (
+          <div className="space-y-6">
+            {!currentVoter ? (
+              <div className="max-w-md mx-auto bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                <div className="bg-gradient-to-r from-emerald-900 to-emerald-800 px-6 py-8 text-white text-center relative overflow-hidden">
+                  <ShieldCheck className="w-12 h-12 mx-auto mb-2 text-amber-400" />
+                  <h2 className="text-xl font-extrabold tracking-tight">Autentikasi Pemilih Musyran</h2>
+                  <p className="text-xs text-emerald-200 mt-1">Masukkan NIS / ID Santri Al-Kautsar Anda</p>
+                </div>
+
+                <form onSubmit={handleLogin} className="p-6 space-y-4">
+                  {authError && (
+                    <div className="bg-red-50 text-red-700 text-xs p-3 rounded-xl border border-red-200 flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-red-500 mt-0.5" />
+                      <span>{authError}</span>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                      NIS / ID Santri Al-Kautsar
+                    </label>
+                    <input
+                      type="text"
+                      value={nisInput}
+                      onChange={(e) => setNisInput(e.target.value)}
+                      placeholder="Contoh: AK-1001, AK-1002, AK-2026"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-none text-slate-800 font-mono font-bold uppercase text-sm"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isVotingLocked}
+                    className="w-full bg-emerald-800 hover:bg-emerald-900 disabled:bg-slate-300 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-sm"
+                  >
+                    <UserCheck className="w-5 h-5 text-amber-300" /> Masuk Bilik Suara
+                  </button>
+
+                  <div className="mt-4 pt-4 border-t border-slate-100 text-center">
+                    <p className="text-xs text-slate-400 mb-2 font-medium">Uji Coba Cepat (Klik NIS Demo):</p>
+                    <div className="flex justify-center gap-2 flex-wrap">
+                      {['AK-1001', 'AK-1002', 'AK-1003', 'AK-2026'].map((demoNis) => (
+                        <button
+                          key={demoNis}
+                          type="button"
+                          onClick={() => setNisInput(demoNis)}
+                          className="px-2.5 py-1 text-xs bg-slate-100 hover:bg-emerald-100 hover:text-emerald-900 rounded-md font-mono text-slate-600 transition-colors border border-slate-200"
+                        >
+                          {demoNis}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </form>
+              </div>
+            ) : voteSuccess ? (
+              <div className="max-w-lg mx-auto bg-white rounded-3xl shadow-xl p-8 text-center border border-slate-100">
+                <div className="w-20 h-20 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-emerald-300">
+                  <CheckCircle2 className="w-12 h-12" />
+                </div>
+                <h2 className="text-2xl font-extrabold text-slate-800">Hak Suara Berhasil Disimpan!</h2>
+                <p className="text-slate-600 mt-2 text-sm">
+                  Syukron Jazakumullah Khairan <strong className="text-emerald-800">{currentVoter.name}</strong>. Anda telah memilih persis {REQUIRED_FORMATUR_COUNT} Formatur PR IPM Al-Kautsar.
+                </p>
+
+                <div className="flex gap-3 justify-center mt-6">
+                  <button
+                    onClick={() => setActiveTab('results')}
+                    className="bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 text-sm shadow-md"
+                  >
+                    <BarChart3 className="w-4 h-4 text-amber-300" /> Lihat Quick Count
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 text-sm"
+                  >
+                    <LogOut className="w-4 h-4" /> Keluar Bilik Suara
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // SELECTION MATRIX (CHOOSING EXACTLY 12 FORMATUR FROM 26 CANDIDATES)
+              <div className="space-y-6">
+                
+                {/* Header Voter Status */}
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-amber-400 text-emerald-950 rounded-full flex items-center justify-center font-black">
+                      {currentVoter.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-slate-800">{currentVoter.name}</span>
+                        <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono font-bold">
+                          {currentVoter.nis}
+                        </span>
+                      </div>
+                      <span className="text-xs text-slate-500">
+                        {currentVoter.class} • {currentVoter.asrama}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <span className="text-[11px] text-slate-400 font-semibold block uppercase">Indikator Pemilihan</span>
+                      <span className={`text-base font-black ${
+                        selectedCandidates.length === REQUIRED_FORMATUR_COUNT ? 'text-emerald-700' : 'text-amber-600'
+                      }`}>
+                        {selectedCandidates.length} / {REQUIRED_FORMATUR_COUNT} Formatur Terpilih
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="text-xs text-red-600 hover:text-red-700 font-semibold border border-red-200 bg-red-50 px-3 py-2 rounded-xl"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </div>
+
+                {/* Instruction Banner */}
+                <div className="bg-amber-100 border border-amber-300 rounded-2xl p-4 text-xs text-amber-950 flex items-start gap-3">
+                  <Info className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="font-bold">Ketentuan Kuota Pemilihan Musyran:</strong>
+                    <p className="mt-0.5">
+                      Sesuai tata tertib Musyran PR IPM Al-Kautsar, Anda wajib memilih <strong>persis 12 calon formatur</strong> dari 26 nama di bawah ini. Tombol kirim hanya aktif setelah Anda memilih 12 kandidat.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Search & Filter within Bilik Suara */}
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-3 items-center justify-between">
+                  <div className="relative w-full sm:w-72">
+                    <input
+                      type="text"
+                      placeholder="Cari kandidat di bilik suara..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                    />
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                  </div>
+
+                  <span className="text-xs text-slate-500 font-medium">
+                    Menampilkan {filteredCandidates.length} dari 26 Calon Formatur
+                  </span>
+                </div>
+
+                {/* Grid 26 Candidates Selection */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  {filteredCandidates.map((candidate) => {
+                    const isSelected = selectedCandidates.some(c => c.id === candidate.id);
+                    return (
+                      <div
+                        key={candidate.id}
+                        onClick={() => toggleCandidateSelection(candidate)}
+                        className={`cursor-pointer rounded-2xl shadow-sm border-2 transition-all flex flex-col justify-between overflow-hidden relative ${
+                          isSelected 
+                            ? 'bg-emerald-50/50 border-emerald-600 ring-4 ring-emerald-600/10 scale-[1.01]' 
+                            : 'bg-white border-slate-200 hover:border-emerald-400'
+                        }`}
+                      >
+                        <div className="absolute top-3 right-3 z-10">
+                          {isSelected ? (
+                            <div className="bg-emerald-600 text-white p-1 rounded-full shadow">
+                              <CheckSquare className="w-5 h-5" />
+                            </div>
+                          ) : (
+                            <div className="text-slate-300 p-1">
+                              <Square className="w-5 h-5" />
+                            </div>
+                          )}
+                        </div>
+
+                        <div>
+                          <div className="bg-emerald-800 text-white p-4 text-center relative">
+                            <span className="absolute top-3 left-3 bg-amber-400 text-emerald-950 text-xs font-black px-2.5 py-0.5 rounded-full shadow">
+                              NO. {candidate.number}
+                            </span>
+                            <img
+                              src={candidate.photo}
+                              alt={candidate.name}
+                              className="w-16 h-16 rounded-full mx-auto object-cover border-2 border-white shadow my-1"
+                            />
+                            <h3 className="font-bold text-sm mt-1">{candidate.name}</h3>
+                            <p className="text-[11px] text-emerald-200">{candidate.class}</p>
+                          </div>
+
+                          <div className="p-3 space-y-1.5 text-xs">
+                            <p className="italic font-medium text-slate-700 line-clamp-2">"{candidate.motto}"</p>
+                          </div>
+                        </div>
+
+                        <div className="p-2.5 bg-slate-50 border-t border-slate-100 text-center">
+                          <span className={`text-xs font-bold ${isSelected ? 'text-emerald-700' : 'text-slate-500'}`}>
+                            {isSelected ? '✓ Terpilih sebagai Formatur' : '+ Pilih Candidate'}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Submit Sticky Bar */}
+                <div className="sticky bottom-4 bg-white p-4 rounded-2xl shadow-2xl border border-slate-200 flex items-center justify-between gap-4 z-30">
+                  <div>
+                    <p className="text-xs text-slate-500">Status Hak Suara Pemilih:</p>
+                    <p className={`text-sm font-bold ${
+                      selectedCandidates.length === REQUIRED_FORMATUR_COUNT ? 'text-emerald-700' : 'text-amber-600'
+                    }`}>
+                      {selectedCandidates.length} dari {REQUIRED_FORMATUR_COUNT} Formatur Terpilih
+                      {selectedCandidates.length < REQUIRED_FORMATUR_COUNT && (
+                        <span className="text-xs font-normal text-slate-400 block">
+                          (Kurang {REQUIRED_FORMATUR_COUNT - selectedCandidates.length} calon lagi)
+                        </span>
+                      )}
+                    </p>
+                  </div>
+
+                  <button
+                    disabled={selectedCandidates.length !== REQUIRED_FORMATUR_COUNT}
+                    onClick={() => setShowConfirmModal(true)}
+                    className="bg-emerald-800 hover:bg-emerald-900 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-xl shadow-md transition-all flex items-center gap-2 text-sm"
+                  >
+                    <CheckCircle2 className="w-5 h-5 text-amber-300" /> Kirim Suara (12 Formatur)
+                  </button>
+                </div>
+
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 4. TAB QUICK COUNT & HASIL REAL-TIME (TOP 12 HIGHLIGHT) */}
+        {activeTab === 'results' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-bold text-slate-800">Hasil Quick Count 26 Calon Formatur Musyran</h2>
+                  <span className="flex items-center gap-1 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
+                    <span className="w-2 h-2 rounded-full bg-red-600"></span> LIVE
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-0.5">Penghitungan otomatis perolehan suara dari 26 calon kandidat formatur</p>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="text-center">
+                  <span className="text-xs text-slate-400 font-semibold block">Pemilih</span>
+                  <span className="text-xl font-black text-emerald-800">{totalVotesCast} Suara</span>
+                </div>
+                <div className="w-px bg-slate-200"></div>
+                <div className="text-center">
+                  <span className="text-xs text-slate-400 font-semibold block">Partisipasi</span>
+                  <span className="text-xl font-black text-amber-600">{turnoutPercent}%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* RESULTS RANKING TABLE AND TOP 12 HIGHLIGHT */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+              <h3 className="font-bold text-slate-800 flex items-center gap-2 text-base">
+                <Award className="w-5 h-5 text-amber-500" /> Peringkat Perolehan Suara Formatur (Top 12 Terpilih)
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {[...candidates]
+                  .sort((a, b) => b.votes - a.votes)
+                  .map((candidate, rank) => {
+                    const isTop12 = rank < REQUIRED_FORMATUR_COUNT;
+                    return (
+                      <div
+                        key={candidate.id}
+                        className={`p-3 rounded-xl border flex items-center justify-between text-xs transition-all ${
+                          isTop12
+                            ? 'bg-gradient-to-r from-emerald-50 to-emerald-100/50 border-emerald-300 font-bold text-emerald-950 shadow-sm'
+                            : 'bg-slate-50 border-slate-200 text-slate-600'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
+                            isTop12 ? 'bg-emerald-800 text-amber-300' : 'bg-slate-300 text-slate-700'
+                          }`}>
+                            {rank + 1}
+                          </span>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-extrabold text-sm leading-none">{candidate.name}</p>
+                              {isTop12 && (
+                                <span className="bg-amber-400 text-emerald-950 text-[10px] px-1.5 py-0.5 rounded font-black uppercase tracking-wider">
+                                  Top 12 Formatur
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[11px] text-slate-400 font-normal">No. {candidate.number} • {candidate.class}</span>
+                          </div>
+                        </div>
+
+                        <span className="font-black text-base text-emerald-900 shrink-0">
+                          {candidate.votes} <span className="text-xs font-normal text-slate-500">Suara</span>
+                        </span>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* 5. TAB PANLIH (ADMIN DASHBOARD WITH AUTH) */}
+        {activeTab === 'admin' && (
+          <div className="space-y-6">
+            {!isAdminAuthenticated ? (
+              <div className="max-w-md mx-auto bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                <div className="bg-gradient-to-r from-emerald-900 to-emerald-800 px-6 py-8 text-white text-center relative overflow-hidden">
+                  <KeyRound className="w-12 h-12 mx-auto mb-2 text-amber-400" />
+                  <h2 className="text-xl font-extrabold tracking-tight">Login Panitia Pemilihan (Panlih)</h2>
+                  <p className="text-xs text-emerald-200 mt-1">Masukkan PIN Keamanan Admin Musyran</p>
+                </div>
+
+                <form onSubmit={handleAdminLogin} className="p-6 space-y-4">
+                  {adminPinError && (
+                    <div className="bg-red-50 text-red-700 text-xs p-3 rounded-xl border border-red-200 flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-red-500 mt-0.5" />
+                      <span>{adminPinError}</span>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                      PIN Keamanan Panlih
+                    </label>
+                    <input
+                      type="password"
+                      value={adminPin}
+                      onChange={(e) => setAdminPin(e.target.value)}
+                      placeholder="Masukkan PIN Admin (Default: 1912)"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-none text-slate-800 font-mono font-bold text-sm tracking-widest"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-sm"
+                  >
+                    <KeyRound className="w-5 h-5 text-amber-300" /> Masuk Panel Admin
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-xl font-extrabold text-slate-800">Panel Kontrol Panitia Pemilihan (Panlih)</h2>
+                      <span className="bg-amber-400 text-emerald-950 text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
+                        Sesi Aktif
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">Musyawarah Ranting PR IPM Al-Kautsar</p>
+                  </div>
+
+                  <button
+                    onClick={() => setIsAdminAuthenticated(false)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-all self-start sm:self-auto"
+                  >
+                    <LogOut className="w-4 h-4 text-slate-500" /> Keluar Sesi Admin
+                  </button>
+                </div>
+
+                {/* FORM PENGATURAN LOGO RESMI */}
+                <div className="bg-amber-50 p-4 rounded-2xl border border-amber-200 space-y-3">
+                  <h3 className="font-bold text-xs text-amber-950 flex items-center gap-2 uppercase tracking-wider">
+                    <ImageIcon className="w-4 h-4 text-amber-600" /> Pengaturan Logo Resmi Ranting / Sekolah
+                  </h3>
+                  
+                  <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-3 rounded-xl border border-amber-200">
+                    <div className="w-16 h-16 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden">
+                      {customLogo ? (
+                        <img src={customLogo} alt="Preview Logo" className="w-full h-full object-contain p-1" />
+                      ) : (
+                        <BookOpen className="w-8 h-8 text-slate-400" />
+                      )}
+                    </div>
+
+                    <div className="flex-1 space-y-2 text-center sm:text-left">
+                      <p className="text-xs text-slate-600">
+                        Unggah gambar logo PR IPM atau logo Pondok/Sekolah Al-Kautsar (Format PNG/JPG). Logo akan ditampilkan di header utama aplikasi.
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                        <label className="cursor-pointer bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow transition-all">
+                          <Upload className="w-4 h-4 text-amber-300" /> Upload File Logo
+                          <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                        </label>
+                        
+                        {customLogo && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCustomLogo(null);
+                              triggerToast('Logo dikembalikan ke tampilan default.');
+                            }}
+                            className="bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold px-3 py-1.5 rounded-xl text-xs transition-all border border-slate-200"
+                          >
+                            Reset Logo Default
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ACTION BUTTONS */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  
+                  {/* Lock/Unlock */}
+                  <button
+                    onClick={() => setIsVotingLocked(!isVotingLocked)}
+                    className={`p-4 rounded-xl text-xs font-bold flex flex-col items-center gap-2 transition-all border ${
+                      isVotingLocked 
+                        ? 'bg-emerald-800 text-white border-emerald-900 hover:bg-emerald-900' 
+                        : 'bg-red-600 text-white border-red-700 hover:bg-red-700'
+                    }`}
+                  >
+                    {isVotingLocked ? <Unlock className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
+                    <span>{isVotingLocked ? 'Buka Kunci Voting' : 'Kunci Voting Musyran'}</span>
+                  </button>
+
+                  {/* Print Report */}
+                  <button
+                    onClick={() => triggerToast('Berita Acara Musyran sedang diunduh/dicetak...')}
+                    className="p-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex flex-col items-center gap-2 transition-all border border-slate-900"
+                  >
+                    <Printer className="w-6 h-6 text-amber-300" />
+                    <span>Cetak Berita Acara Musyran</span>
+                  </button>
+
+                  {/* Reset Data */}
+                  <button
+                    onClick={() => {
+                      setCandidates(INITIAL_CANDIDATES);
+                      setVoters(VALID_VOTERS);
+                      setVoteSuccess(false);
+                      setCurrentVoter(null);
+                      triggerToast('Data simulasi Musyran berhasil di-reset!');
+                    }}
+                    className="p-4 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold flex flex-col items-center gap-2 transition-all border border-slate-200"
+                  >
+                    <RefreshCw className="w-6 h-6 text-slate-600" />
+                    <span>Reset Data Simulasi</span>
+                  </button>
+                </div>
+
+                {/* FORM TAMBAH PEMILIH BARU (TAMBAH DPT) */}
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                  <h3 className="font-bold text-xs text-slate-800 flex items-center gap-2 uppercase tracking-wider">
+                    <UserPlus className="w-4 h-4 text-emerald-800" /> Tambah Pemilih Baru ke DPT
+                  </h3>
+
+                  <form onSubmit={handleAddVoter} className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <input
+                      type="text"
+                      placeholder="NIS (Contoh: AK-1005)"
+                      value={newVoterNis}
+                      onChange={(e) => setNewVoterNis(e.target.value)}
+                      className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Nama Lengkap Santri"
+                      value={newVoterName}
+                      onChange={(e) => setNewVoterName(e.target.value)}
+                      className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                    />
+                    <select
+                      value={newVoterClass}
+                      onChange={(e) => setNewVoterClass(e.target.value)}
+                      className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                    >
+                      <option value="Kelas 7">Kelas 7</option>
+                      <option value="Kelas 8">Kelas 8</option>
+                    </select>
+                    <button
+                      type="submit"
+                      className="bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow"
+                    >
+                      <UserPlus className="w-4 h-4 text-amber-300" /> Tambah DPT
+                    </button>
+                  </form>
+                </div>
+
+                {/* VOTER AUDIT TABLE WITH RESET INDIVIDUAL OPTION */}
+                <div>
+                  <h3 className="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-emerald-800" /> Rekapitulasi Daftar Pemilih Tetap (DPT Musyran)
+                  </h3>
+                  <div className="overflow-x-auto rounded-xl border border-slate-200">
+                    <table className="w-full text-xs text-left">
+                      <thead className="bg-slate-100 text-slate-600 font-semibold uppercase">
+                        <tr>
+                          <th className="p-3">NIS</th>
+                          <th className="p-3">Nama Santri / Pemilih</th>
+                          <th className="p-3">Kelas</th>
+                          <th className="p-3">Asrama</th>
+                          <th className="p-3 text-center">Status Suara</th>
+                          <th className="p-3 text-center">Aksi Panlih</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {Object.entries(voters).map(([nis, info]) => (
+                          <tr key={nis} className="hover:bg-slate-50">
+                            <td className="p-3 font-mono text-slate-800 font-bold">{nis}</td>
+                            <td className="p-3 font-semibold">{info.name}</td>
+                            <td className="p-3 text-slate-500">{info.class}</td>
+                            <td className="p-3 text-slate-500">{info.asrama}</td>
+                            <td className="p-3 text-center">
+                              {info.voted ? (
+                                <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">
+                                  Sudah Memilih
+                                </span>
+                              ) : (
+                                <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-medium">
+                                  Belum Memilih
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-3 text-center">
+                              {info.voted && (
+                                <button
+                                  onClick={() => handleResetIndividualVoter(nis)}
+                                  className="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded text-[11px] font-bold flex items-center gap-1 mx-auto"
+                                  title="Buka kembali hak suara santri ini"
+                                >
+                                  <RotateCcw className="w-3 h-3" /> Buka Hak Suara
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+              </div>
+            )}
+          </div>
+        )}
+
+      </main>
+
+      {/* CONFIRMATION MODAL */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
+            <h3 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3">
+              Konfirmasi Pilihan Formatur
+            </h3>
+
+            <p className="text-xs text-slate-600 my-3">
+              Anda memilih <strong>{selectedCandidates.length} Formatur</strong> berikut untuk kepemimpinan PR IPM Al-Kautsar:
+            </p>
+
+            <div className="space-y-2 max-h-48 overflow-y-auto my-3 pr-1">
+              {selectedCandidates.map((c) => (
+                <div key={c.id} className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3">
+                  <img src={c.photo} alt={c.name} className="w-8 h-8 rounded-full object-cover" />
+                  <div className="text-xs">
+                    <p className="font-bold text-emerald-950">{c.name}</p>
+                    <span className="text-[10px] text-emerald-700">No. {c.number} • {c.class}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-[11px] text-slate-500 mb-6 italic">
+              * Suara yang telah dikirimkan tidak dapat dibatalkan atau diubah lagi.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-all"
+              >
+                Ubah Pilihan
+              </button>
+              <button
+                onClick={handleCastVote}
+                className="flex-1 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5"
+              >
+                <CheckCircle2 className="w-4 h-4 text-amber-300" /> Kirim Suara Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FOOTER */}
+      <footer className="bg-slate-900 text-slate-400 text-xs py-6 mt-12 border-t border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 text-center space-y-2">
+          <p>© 2026 Panitia Pemilihan (Panlih) Musyawarah Ranting PR IPM Al-Kautsar.</p>
+          <p className="text-slate-500">
+            Sistem E-Voting Berbasis Kejujuran, Transparansi & Digitalisasi Pelajar Muhammadiyah.
+          </p>
+        </div>
+      </footer>
+
+    </div>
+  );
+}
