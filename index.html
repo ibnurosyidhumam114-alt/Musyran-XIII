@@ -9,7 +9,6 @@ import {
   ShieldCheck, 
   RefreshCw, 
   AlertCircle,
-  TrendingUp,
   Users,
   Search,
   LogOut,
@@ -65,7 +64,7 @@ const INITIAL_CANDIDATES = [
   { id: 'fmt-26', number: '26', name: 'Adinda Nufusus Sholihah', class: 'Kelas 7', motto: 'Ipmawati Tangguh Berkemajuan', photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400', vision: 'Pelatihan kewirausahaan mandiri ipmawati.', mission: ['Market Day Santri.'], programs: ['Ipmawati Preneur'], votes: 34 }
 ];
 
-// Sample Voter List for Demo
+// Daftar Pemilih Tetap (DPT) Sampel untuk Uji Coba
 const VALID_VOTERS = {
   'AK-1001': { name: 'Ahmad Fauzan', class: 'Kelas 7', asrama: 'Abu Bakar', voted: false },
   'AK-1002': { name: 'Siti Nurhaliza', class: 'Kelas 8', asrama: 'Khadijah', voted: false },
@@ -82,15 +81,56 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'candidates' | 'vote' | 'results' | 'admin'
   const [isVotingLocked, setIsVotingLocked] = useState(false);
   
-  // Custom Logo State
+  // State Logo Kustom
   const [customLogo, setCustomLogo] = useState(null);
 
-  // Admin Auth State
+  // State Autentikasi Admin (Panlih)
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminPin, setAdminPin] = useState('');
   const [adminPinError, setAdminPinError] = useState('');
 
-  // Logo Upload Handler for Admin
+  // State Tambah Pemilih oleh Admin
+  const [newVoterNis, setNewVoterNis] = useState('');
+  const [newVoterName, setNewVoterName] = useState('');
+  const [newVoterClass, setNewVoterClass] = useState('Kelas 7');
+  const [newVoterAsrama, setNewVoterAsrama] = useState('Abu Bakar');
+
+  // State Pencarian & Filter Kandidat
+  const [searchQuery, setSearchQuery] = useState('');
+  const [classFilter, setClassFilter] = useState('ALL');
+
+  // State Autentikasi & Bilik Suara Pemilih
+  const [nisInput, setNisInput] = useState('');
+  const [currentVoter, setCurrentVoter] = useState(null);
+  const [selectedCandidates, setSelectedCandidates] = useState([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [voteSuccess, setVoteSuccess] = useState(false);
+  const [authError, setAuthError] = useState('');
+
+  // Statistik Partisipasi
+  const totalTargetVoters = 150;
+  const totalVotesCast = Object.values(voters).filter(v => v.voted).length;
+  const turnoutPercent = ((totalVotesCast / totalTargetVoters) * 100).toFixed(1);
+
+  // Filter Daftar Kandidat
+  const filteredCandidates = candidates.filter(c => {
+    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          c.number.includes(searchQuery) || 
+                          c.class.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesClass = classFilter === 'ALL' || c.class.includes(classFilter);
+    return matchesSearch && matchesClass;
+  });
+
+  // Notifikasi Toast
+  const triggerToast = (msg) => {
+    setToastMessage(msg);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  // Handler Unggah Logo
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -102,62 +142,21 @@ export default function App() {
       reader.readAsDataURL(file);
     }
   };
-  
-  // Admin Add Voter State
-  const [newVoterNis, setNewVoterNis] = useState('');
-  const [newVoterName, setNewVoterName] = useState('');
-  const [newVoterClass, setNewVoterClass] = useState('Kelas 7');
-  const [newVoterAsrama, setNewVoterAsrama] = useState('Abu Bakar');
 
-  // Search & Filter State
-  const [searchQuery, setSearchQuery] = useState('');
-  const [classFilter, setClassFilter] = useState('ALL');
-
-  // Auth & Voting Selection State
-  const [nisInput, setNisInput] = useState('');
-  const [currentVoter, setCurrentVoter] = useState(null);
-  const [selectedCandidates, setSelectedCandidates] = useState([]);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [voteSuccess, setVoteSuccess] = useState(false);
-  const [authError, setAuthError] = useState('');
-
-  // Total Target Voters Count
-  const totalTargetVoters = 150;
-  const totalVotesCast = Object.values(voters).filter(v => v.voted).length;
-  const turnoutPercent = ((totalVotesCast / totalTargetVoters) * 100).toFixed(1);
-
-  // Filtered Candidates Logic
-  const filteredCandidates = candidates.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          c.number.includes(searchQuery) || 
-                          c.class.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesClass = classFilter === 'ALL' || c.class.includes(classFilter);
-    return matchesSearch && matchesClass;
-  });
-
-  // Trigger Toast Notification
-  const triggerToast = (msg) => {
-    setToastMessage(msg);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
-  };
-
-  // Admin PIN Auth Handler
+  // Handler Login Admin (PIN: 1912)
   const handleAdminLogin = (e) => {
     e.preventDefault();
     setAdminPinError('');
-    if (adminPin === '1912') { // Default PIN: 1912 (Tahun Berdiri Muhammadiyah)
+    if (adminPin === '1912') {
       setIsAdminAuthenticated(true);
       setAdminPin('');
       triggerToast('Login Panlih Berhasil!');
     } else {
-      setAdminPinError('PIN Admin Salah! (PIN Demo: 1912)');
+      setAdminPinError('PIN Admin Salah! (PIN Default: 1912)');
     }
   };
 
-  // Add New Voter to DPT by Admin
+  // Handler Tambah Pemilih Baru ke DPT
   const handleAddVoter = (e) => {
     e.preventDefault();
     const formattedNis = newVoterNis.trim().toUpperCase();
@@ -186,7 +185,7 @@ export default function App() {
     triggerToast(`Pemilih ${newVoterName} (${formattedNis}) berhasil ditambahkan ke DPT!`);
   };
 
-  // Reset Individual Voter Status
+  // Handler Reset Hak Suara Individu
   const handleResetIndividualVoter = (nis) => {
     setVoters(prev => ({
       ...prev,
@@ -198,7 +197,7 @@ export default function App() {
     triggerToast(`Status hak suara pemilih ${nis} berhasil dibuka kembali.`);
   };
 
-  // Authentication Handler
+  // Handler Login Pemilih ke Bilik Suara
   const handleLogin = (e) => {
     e.preventDefault();
     setAuthError('');
@@ -223,7 +222,6 @@ export default function App() {
         setSelectedCandidates([]);
       }
     } else {
-      // Fallback demo account
       setCurrentVoter({
         nis: trimmed,
         name: `Santri / Kader Al-Kautsar (${trimmed})`,
@@ -235,7 +233,7 @@ export default function App() {
     }
   };
 
-  // Toggle Selection of Formatur Candidate
+  // Handler Pilih/Batal Pilih Kandidat Formatur
   const toggleCandidateSelection = (candidate) => {
     const isSelected = selectedCandidates.some(c => c.id === candidate.id);
     if (isSelected) {
@@ -249,14 +247,13 @@ export default function App() {
     }
   };
 
-  // Submit Vote Action
+  // Handler Kirim Suara
   const handleCastVote = () => {
     if (selectedCandidates.length !== REQUIRED_FORMATUR_COUNT) {
       triggerToast(`Anda wajib memilih persis ${REQUIRED_FORMATUR_COUNT} calon formatur!`);
       return;
     }
 
-    // Increment votes for selected candidates
     setCandidates(prev => 
       prev.map(c => {
         if (selectedCandidates.some(sel => sel.id === c.id)) {
@@ -266,7 +263,6 @@ export default function App() {
       })
     );
 
-    // Update Voter Status
     setVoters(prev => ({
       ...prev,
       [currentVoter.nis]: {
@@ -280,7 +276,7 @@ export default function App() {
     triggerToast('Suara Anda berhasil tersimpan dalam sistem E-Voting Musyran!');
   };
 
-  // Logout / Reset Current Session
+  // Handler Keluar Sesi Pemilih
   const handleLogout = () => {
     setCurrentVoter(null);
     setSelectedCandidates([]);
@@ -291,7 +287,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
       
-      {/* TOAST NOTIFICATION */}
+      {/* NOTIFIKASI TOAST */}
       {showToast && (
         <div className="fixed top-20 right-4 z-50 bg-emerald-900 text-amber-300 px-4 py-3 rounded-xl shadow-2xl border border-amber-400 flex items-center gap-2 text-sm font-semibold animate-bounce">
           <Sparkles className="w-5 h-5 text-amber-400" />
@@ -299,12 +295,11 @@ export default function App() {
         </div>
       )}
 
-      {/* BRANDING HEADER */}
+      {/* HEADER UTAMA */}
       <header className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-amber-500 text-white shadow-xl sticky top-0 z-40 border-b-2 border-amber-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
           
           <div className="flex items-center gap-3">
-            {/* LOGO DISPLAY AREA */}
             {customLogo ? (
               <img 
                 src={customLogo} 
@@ -331,7 +326,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Navigation Tabs */}
+          {/* MENU NAVIGASI */}
           <nav className="flex items-center bg-emerald-950/50 p-1.5 rounded-2xl backdrop-blur-md border border-white/10 text-xs sm:text-sm overflow-x-auto max-w-full">
             <button
               onClick={() => setActiveTab('home')}
@@ -388,17 +383,17 @@ export default function App() {
         </div>
       </header>
 
-      {/* SYSTEM STATUS BANNER */}
+      {/* BANNER STATUS VOTING DIKUNCI */}
       {isVotingLocked && (
         <div className="bg-amber-500 text-amber-950 px-4 py-2 text-center font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-inner">
           <Lock className="w-4 h-4" /> Pemungutan suara Musyran saat ini DIKUNCI oleh Panitia Pemilihan (Panlih).
         </div>
       )}
 
-      {/* MAIN CONTAINER */}
+      {/* KONTEN UTAMA */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
-        {/* 1. TAB BERANDA / INFORMATION */}
+        {/* 1. TAB BERANDA */}
         {activeTab === 'home' && (
           <div className="space-y-8">
             <div className="relative bg-gradient-to-br from-emerald-900 via-emerald-800 to-amber-600 rounded-3xl p-6 sm:p-10 text-white overflow-hidden shadow-xl border border-amber-400/30">
@@ -501,7 +496,7 @@ export default function App() {
           </div>
         )}
 
-        {/* 2. TAB DAFTAR CALON FORMATUR (26 CANDIDATES) */}
+        {/* 2. TAB DAFTAR CALON FORMATUR (26 KANDIDAT) */}
         {activeTab === 'candidates' && (
           <div className="space-y-6">
             <div className="text-center max-w-2xl mx-auto">
@@ -511,12 +506,12 @@ export default function App() {
               </p>
             </div>
 
-            {/* SEARCH AND FILTER BAR */}
+            {/* BAR PENCARIAN & FILTER */}
             <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-3 items-center justify-between">
               <div className="relative w-full sm:w-72">
                 <input
                   type="text"
-                  placeholder="Cari Nama / No / Asrama..."
+                  placeholder="Cari Nama / No / Kelas..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none"
@@ -584,7 +579,7 @@ export default function App() {
           </div>
         )}
 
-        {/* 3. TAB BILIK SUARA (E-VOTING FORMATUR - MEMILIH TEPAT 12) */}
+        {/* 3. TAB BILIK SUARA */}
         {activeTab === 'vote' && (
           <div className="space-y-6">
             {!currentVoter ? (
@@ -667,10 +662,9 @@ export default function App() {
                 </div>
               </div>
             ) : (
-              // SELECTION MATRIX (CHOOSING EXACTLY 12 FORMATUR FROM 26 CANDIDATES)
               <div className="space-y-6">
                 
-                {/* Header Voter Status */}
+                {/* Info Pemilih Aktif */}
                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-amber-400 text-emerald-950 rounded-full flex items-center justify-center font-black">
@@ -707,7 +701,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Instruction Banner */}
+                {/* Panduan Kuota */}
                 <div className="bg-amber-100 border border-amber-300 rounded-2xl p-4 text-xs text-amber-950 flex items-start gap-3">
                   <Info className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
                   <div>
@@ -718,7 +712,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Search & Filter within Bilik Suara */}
+                {/* Pencarian di Bilik Suara */}
                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-3 items-center justify-between">
                   <div className="relative w-full sm:w-72">
                     <input
@@ -736,7 +730,7 @@ export default function App() {
                   </span>
                 </div>
 
-                {/* Grid 26 Candidates Selection */}
+                {/* Grid 26 Calon Formatur */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                   {filteredCandidates.map((candidate) => {
                     const isSelected = selectedCandidates.some(c => c.id === candidate.id);
@@ -783,7 +777,7 @@ export default function App() {
 
                         <div className="p-2.5 bg-slate-50 border-t border-slate-100 text-center">
                           <span className={`text-xs font-bold ${isSelected ? 'text-emerald-700' : 'text-slate-500'}`}>
-                            {isSelected ? '✓ Terpilih sebagai Formatur' : '+ Pilih Candidate'}
+                            {isSelected ? '✓ Terpilih sebagai Formatur' : '+ Pilih Kandidat'}
                           </span>
                         </div>
                       </div>
@@ -791,7 +785,7 @@ export default function App() {
                   })}
                 </div>
 
-                {/* Submit Sticky Bar */}
+                {/* Bar Kirim Suara */}
                 <div className="sticky bottom-4 bg-white p-4 rounded-2xl shadow-2xl border border-slate-200 flex items-center justify-between gap-4 z-30">
                   <div>
                     <p className="text-xs text-slate-500">Status Hak Suara Pemilih:</p>
@@ -821,7 +815,7 @@ export default function App() {
           </div>
         )}
 
-        {/* 4. TAB QUICK COUNT & HASIL REAL-TIME (TOP 12 HIGHLIGHT) */}
+        {/* 4. TAB QUICK COUNT */}
         {activeTab === 'results' && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
@@ -848,7 +842,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* RESULTS RANKING TABLE AND TOP 12 HIGHLIGHT */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
               <h3 className="font-bold text-slate-800 flex items-center gap-2 text-base">
                 <Award className="w-5 h-5 text-amber-500" /> Peringkat Perolehan Suara Formatur (Top 12 Terpilih)
@@ -899,7 +892,7 @@ export default function App() {
           </div>
         )}
 
-        {/* 5. TAB PANLIH (ADMIN DASHBOARD WITH AUTH) */}
+        {/* 5. TAB PANLIH (PANEL ADMIN DENGAN AUTENTIKASI PIN) */}
         {activeTab === 'admin' && (
           <div className="space-y-6">
             {!isAdminAuthenticated ? (
@@ -960,7 +953,7 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* FORM PENGATURAN LOGO RESMI */}
+                {/* PENGATURAN LOGO RESMI */}
                 <div className="bg-amber-50 p-4 rounded-2xl border border-amber-200 space-y-3">
                   <h3 className="font-bold text-xs text-amber-950 flex items-center gap-2 uppercase tracking-wider">
                     <ImageIcon className="w-4 h-4 text-amber-600" /> Pengaturan Logo Resmi Ranting / Sekolah
@@ -1003,10 +996,8 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* ACTION BUTTONS */}
+                {/* TOMBOL AKSI PANLIH */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  
-                  {/* Lock/Unlock */}
                   <button
                     onClick={() => setIsVotingLocked(!isVotingLocked)}
                     className={`p-4 rounded-xl text-xs font-bold flex flex-col items-center gap-2 transition-all border ${
@@ -1019,7 +1010,6 @@ export default function App() {
                     <span>{isVotingLocked ? 'Buka Kunci Voting' : 'Kunci Voting Musyran'}</span>
                   </button>
 
-                  {/* Print Report */}
                   <button
                     onClick={() => triggerToast('Berita Acara Musyran sedang diunduh/dicetak...')}
                     className="p-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex flex-col items-center gap-2 transition-all border border-slate-900"
@@ -1028,7 +1018,6 @@ export default function App() {
                     <span>Cetak Berita Acara Musyran</span>
                   </button>
 
-                  {/* Reset Data */}
                   <button
                     onClick={() => {
                       setCandidates(INITIAL_CANDIDATES);
@@ -1044,13 +1033,13 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* FORM TAMBAH PEMILIH BARU (TAMBAH DPT) */}
+                {/* FORM TAMBAH PEMILIH BARU */}
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                   <h3 className="font-bold text-xs text-slate-800 flex items-center gap-2 uppercase tracking-wider">
                     <UserPlus className="w-4 h-4 text-emerald-800" /> Tambah Pemilih Baru ke DPT
                   </h3>
 
-                  <form onSubmit={handleAddVoter} className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <form onSubmit={handleAddVoter} className="grid grid-cols-1 sm:grid-cols-5 gap-3">
                     <input
                       type="text"
                       placeholder="NIS (Contoh: AK-1005)"
@@ -1073,6 +1062,13 @@ export default function App() {
                       <option value="Kelas 7">Kelas 7</option>
                       <option value="Kelas 8">Kelas 8</option>
                     </select>
+                    <input
+                      type="text"
+                      placeholder="Asrama (Contoh: Umar)"
+                      value={newVoterAsrama}
+                      onChange={(e) => setNewVoterAsrama(e.target.value)}
+                      className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none"
+                    />
                     <button
                       type="submit"
                       className="bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow"
@@ -1082,7 +1078,7 @@ export default function App() {
                   </form>
                 </div>
 
-                {/* VOTER AUDIT TABLE WITH RESET INDIVIDUAL OPTION */}
+                {/* TABEL AUDIT DPT */}
                 <div>
                   <h3 className="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2">
                     <FileText className="w-4 h-4 text-emerald-800" /> Rekapitulasi Daftar Pemilih Tetap (DPT Musyran)
@@ -1142,10 +1138,10 @@ export default function App() {
 
       </main>
 
-      {/* CONFIRMATION MODAL */}
+      {/* MODAL KONFIRMASI PILIHAN */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
             <h3 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3">
               Konfirmasi Pilihan Formatur
             </h3>
@@ -1181,7 +1177,7 @@ export default function App() {
                 onClick={handleCastVote}
                 className="flex-1 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5"
               >
-                <CheckCircle2 className="w-4 h-4 text-amber-300" /> Kirim Suara Now
+                <CheckCircle2 className="w-4 h-4 text-amber-300" /> Kirim Suara Sekarang
               </button>
             </div>
           </div>
